@@ -71,3 +71,18 @@ class Thief(Sprite):
 
     def update(self, dt):
         self.get_keys(dt)
+class Sword(Sprite):
+    def __init__(self, x, y, lifetime=0.5):
+        Sprite.__init__(self)
+        self.image = pg.Surface((16, 32))
+        self.image.fill((200, 100, 0))  # brown/bronze color for sword
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)  # spawn at player position
+        self.lifetime = lifetime  # how long the sword stays (seconds)
+        self.age = 0  # tracks elapsed time
+    
+    def update(self, dt):
+        self.age += dt
+        # Remove sword after lifetime expires
+        if self.age >= self.lifetime:
+            self.kill()  # removes sprite from all groups

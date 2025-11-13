@@ -11,6 +11,7 @@ from sprites import *
 from sprites import Berserker
 from sprites import Mage
 from sprites import Thief
+from sprites import Sword
 from levels import LEVEL_MAP, draw_connections
 #starts pygame module
 
@@ -136,6 +137,10 @@ while run:
   #event handler fo us to quit instance
   for event in pygame.event.get():
     if event.type == pygame.MOUSEBUTTONDOWN:
+      # Spawn sword at player position during gameplay
+      if game_state == "running" and player is not None:
+        sword = Sword(player.rect.centerx, player.rect.centery)
+        all_sprites.add(sword)
       # handle level selection clicks only on mouse down
       if game_state == "level_select":
         for level_node in LEVEL_MAP:
@@ -146,6 +151,10 @@ while run:
     if event.type == pygame.KEYDOWN:
       if event.key == pygame.K_SPACE:
         game_paused = True
+      # Alternative: spawn sword on key press (e.g., 'F' key)
+      if event.key == pygame.K_f and game_state == "running" and player is not None:
+        sword = Sword(player.rect.centerx, player.rect.centery)
+        all_sprites.add(sword)
     if event.type == pygame.QUIT:
       run = False
 
