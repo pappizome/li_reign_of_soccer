@@ -28,6 +28,7 @@ pygame.display.set_caption("Main Menu")
 game_paused = False
 menu_state = "main"
 game_state = "idle"
+initiation = 'false'
 
 #define fonts for us to draw text
 font = pygame.font.SysFont("arialblack", 40)
@@ -40,6 +41,7 @@ GAME_FOLDER = os.path.dirname(__file__)
 IMG_FOLDER = r"C:\Users\J.Li29\OneDrive - Bellarmine College Preparatory\Documents\computer_programming\li_reign_of_soccer\the_game\images"
 
 #load button images
+#sets where the images are loaded
 resume_img = pygame.image.load(os.path.join(IMG_FOLDER, 'button_resume.png')).convert_alpha()
 options_img = pygame.image.load(os.path.join(IMG_FOLDER, 'button_options.png')).convert_alpha()
 quit_img = pygame.image.load(os.path.join(IMG_FOLDER, 'button_quit.png')).convert_alpha()
@@ -50,7 +52,8 @@ back_img = pygame.image.load(os.path.join(IMG_FOLDER, 'button_back.png')).conver
 class1_img = pygame.image.load(os.path.join(IMG_FOLDER, 'class1.png')).convert_alpha()
 class2_img = pygame.image.load(os.path.join(IMG_FOLDER, 'class2.png')).convert_alpha()
 class3_img = pygame.image.load(os.path.join(IMG_FOLDER, 'class3.png')).convert_alpha()
-#create button instances
+offense_img = pygame.image.load(os.path.join(IMG_FOLDER, 'offense.png')).convert_alpha()
+#create button instances from the button.py module
 resume_button = button.Button(304, 125, resume_img, 1)
 options_button = button.Button(297, 250, options_img, 1)
 quit_button = button.Button(336, 375, quit_img, 1)
@@ -61,18 +64,20 @@ back_button = button.Button(332, 450, back_img, 1)
 class1_button = button.Button(100, 300, class1_img, 1)
 class2_button = button.Button(390, 300, class2_img, 1)
 class3_button = button.Button(620, 250, class3_img, 1)
-
+offense_button = button.Button(130, 400, offense_img, 1)
+#allows us to draw text
 def draw_text(text, font, text_col, x, y):
   img = font.render(text, True, text_col)
   screen.blit(img, (x, y))
 
 #creates batches of groups before main loop
+#defines frames and variables
 clock = pg.time.Clock()
 all_sprites = pg.sprite.Group()   # create the group once
 player = None
 current_level = None
 
-#game loop
+#main loop
 run = True
 while run:
   #calculate dt at start of each frame
@@ -121,17 +126,22 @@ while run:
       player = Thief(100, 100)
       all_sprites.add(player)
       game_state = "level_select"
-      
-
+#if game is level select then draw levels from levels.py
   if game_state == "level_select":
     draw_connections(screen, LEVEL_MAP)
     for level_node in LEVEL_MAP:
         level_node.draw(screen)
         draw_text("LEVELS", font, TEXT_COL, 320, 50)
-  elif game_state == "running":
+    
+      #makes the player selection menu for moves
+  if game_state == "move_select":
+    if offense_button.draw(screen):
+      game_state = "running"
+      print("offense")
     # update & draw each frame while running
     all_sprites.update(dt)
     all_sprites.draw(screen)
+  
 
 
   #event handler fo us to quit instance
@@ -139,21 +149,26 @@ while run:
     if event.type == pygame.MOUSEBUTTONDOWN:
       # Spawn sword at player position during gameplay
       if game_state == "running" and player is not None:
-        sword = Sword(player.rect.centerx, player.rect.centery)
-        all_sprites.add(sword)
+        sword = Sword(player.rect.centerx, player.rect.centery, player=player)
+        all_sprites.add(sword)    
       # handle level selection clicks only on mouse down
+
+
       if game_state == "level_select":
         for level_node in LEVEL_MAP:
           if level_node.is_clicked(event.pos) and level_node.unlocked:
             current_level = level_node.level_id
-            game_state = "running"
+            # go to move_select so the player can choose moves (e.g., offense)
+            game_state = "move_select"
             break
+          #pauses game when space is clicked for menu
     if event.type == pygame.KEYDOWN:
       if event.key == pygame.K_SPACE:
+        #variable is true
         game_paused = True
-      # Alternative: spawn sword on key press (e.g., 'F' key)
+      #if variables are met then sword is spawned when key is pressed by any class
       if event.key == pygame.K_f and game_state == "running" and player is not None:
-        sword = Sword(player.rect.centerx, player.rect.centery)
+        sword = Sword(player.rect.centerx, player.rect.centery, player=player)
         all_sprites.add(sword)
     if event.type == pygame.QUIT:
       run = False

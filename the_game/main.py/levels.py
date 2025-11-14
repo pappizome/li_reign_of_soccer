@@ -1,4 +1,6 @@
-# levels.py
+# made by james with help of chat
+
+
 import pygame as pg
 import os
 
@@ -18,6 +20,7 @@ class LevelNode:
         # Draw level number or icon
         #font and allows us to draw text
         font = pg.font.SysFont("arial", 20)
+        #centers text
         text = font.render(str(self.level_id), True, (255, 255, 255))
         surface.blit(text, (self.x - 10, self.y - 10))
 
@@ -37,7 +40,7 @@ LEVEL_MAP = [
 def draw_connections(surface, levels):
     """Draw lines between connected levels"""
     #lines between level pairs
-    connections = [(1, 2), (2, 3), (3, 4), (4, 5)]  # level pairs
+    connections = [(1, 2), (2, 3), (3, 4), (4, 5)]  # level pairs for grey connections
     for l1, l2 in connections:
         node1 = levels[l1 - 1]
         node2 = levels[l2 - 1]
