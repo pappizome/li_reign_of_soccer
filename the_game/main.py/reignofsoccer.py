@@ -32,6 +32,7 @@ initiation = 'false'
 
 #define fonts for us to draw text
 font = pygame.font.SysFont("arialblack", 40)
+debug_font = pygame.font.SysFont("arial", 18)
 
 #define colours
 TEXT_COL = (255, 255, 255)
@@ -77,6 +78,7 @@ all_sprites = pg.sprite.Group()   # create the group once
 player = None
 current_level = None
 
+
 #main loop
 run = True
 while run:
@@ -85,6 +87,8 @@ while run:
   
   #fills background color
   screen.fill((52, 78, 91))
+  # draw debug state info
+  draw_text(f"State: {game_state}  Menu: {menu_state}", debug_font, (255, 255, 0), 10, 10)
 
   #check if game is paused
   if game_paused == True:
@@ -114,17 +118,14 @@ while run:
     if class1_button.draw(screen):
       print("berserker")
       player = Berserker(100, 100)
-      all_sprites.add(player)
       game_state = "level_select"
     if class2_button.draw(screen):
       print("mage")
       player = Mage(100, 100)
-      all_sprites.add(player)
       game_state = "level_select"
     if class3_button.draw(screen):
       print("thief")
       player = Thief(100, 100)
-      all_sprites.add(player)
       game_state = "level_select"
 #if game is level select then draw levels from levels.py
   if game_state == "level_select":
@@ -133,14 +134,7 @@ while run:
         level_node.draw(screen)
         draw_text("LEVELS", font, TEXT_COL, 320, 50)
     
-      #makes the player selection menu for moves
-  if game_state == "move_select":
-    if offense_button.draw(screen):
-      game_state = "running"
-      print("offense")
-    # update & draw each frame while running
-    all_sprites.update(dt)
-    all_sprites.draw(screen)
+     
   
 
 
@@ -161,17 +155,31 @@ while run:
             # go to move_select so the player can choose moves (e.g., offense)
             game_state = "move_select"
             break
-          #pauses game when space is clicked for menu
     if event.type == pygame.KEYDOWN:
       if event.key == pygame.K_SPACE:
-        #variable is true
+        # Pause game when space is pressed
         game_paused = True
-      #if variables are met then sword is spawned when key is pressed by any class
+      # Spawn sword on F key press during gameplay
+      #used ai to help me
       if event.key == pygame.K_f and game_state == "running" and player is not None:
         sword = Sword(player.rect.centerx, player.rect.centery, player=player)
         all_sprites.add(sword)
     if event.type == pygame.QUIT:
       run = False
+
+  if game_state == "move_select":
+    if offense_button.draw(screen):
+      game_state = "running"
+      print("offense")
+      if player is not None and player not in all_sprites:
+        all_sprites.add(player)
+    # update & draw each frame while running
+    all_sprites.update(dt)
+    all_sprites.draw(screen)
+  elif game_state == "running":
+    # update & draw each frame while running
+    all_sprites.update(dt)
+    all_sprites.draw(screen)
 
   pygame.display.update()
 
