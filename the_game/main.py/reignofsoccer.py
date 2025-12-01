@@ -87,7 +87,7 @@ while run:
   
   #fills background color
   screen.fill((52, 78, 91))
-  # draw debug state info
+  # draw debug state info by chat
   draw_text(f"State: {game_state}  Menu: {menu_state}", debug_font, (255, 255, 0), 10, 10)
 
   #check if game is paused
@@ -173,6 +173,7 @@ while run:
       print("offense")
       if player is not None and player not in all_sprites:
         all_sprites.add(player)
+        all_sprites.add(Mob)
     # update & draw each frame while running
     all_sprites.update(dt)
     all_sprites.draw(screen)

@@ -1,5 +1,8 @@
 import pygame as pg
 from pygame.sprite import Sprite
+#from utils import *
+WIDTH = 800
+HEIGHT = 600
 
 class Berserker(Sprite):
     def __init__(self, x, y):
@@ -93,3 +96,21 @@ class Sword(Sprite):
         # Remove sword after lifetime expires
         if self.age >= self.lifetime:
             self.kill()  # removes sprite from all groups
+class Mob(Sprite):
+    def __init__(self, game, x, y):
+        #creates Sprite upon init
+        Sprite.__init__(self)
+        self.game = game
+        #colors sprite and positions sprite
+        self.image = pg.Surface((32, 32))
+        self.image.fill((255, 0, 0))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 10
+    def update(self):
+        self.rect.x += self.speed
+        if self.rect.x < WIDTH:
+            self.rect.x -= self.speed
+        if self.rect.x > WIDTH:
+            self.rect.x += self.speed
