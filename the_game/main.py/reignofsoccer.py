@@ -11,7 +11,6 @@ from sprites import *
 from sprites import Berserker
 from sprites import Mage
 from sprites import Thief
-from sprites import Sword
 from levels import LEVEL_MAP, draw_connections
 #starts pygame module
 
@@ -81,6 +80,12 @@ all_sprites = pg.sprite.Group()   # create the group once
 player = None
 current_level = None
 
+# Spawner variables
+spawn_timer = 0
+spawn_rate = 0.5  # Spawn every 0.5 seconds
+spawn_x = SCREEN_WIDTH // 2  # Spawn from middle of screen
+spawn_y = SCREEN_HEIGHT // 2
+
 
 #main loop
 run = True
@@ -144,13 +149,7 @@ while run:
   #event handler fo us to quit instance
   for event in pygame.event.get():
     if event.type == pygame.MOUSEBUTTONDOWN:
-      # Spawn sword at player position during gameplay
-      if game_state == "running" and player is not None:
-        sword = Sword(player.rect.centerx, player.rect.centery, player=player)
-        all_sprites.add(sword)    
       # handle level selection clicks only on mouse down
-
-
       if game_state == "level_select":
         for level_node in LEVEL_MAP:
           if level_node.is_clicked(event.pos) and level_node.unlocked:
@@ -162,11 +161,6 @@ while run:
       if event.key == pygame.K_SPACE:
         # Pause game when space is pressed
         game_paused = True
-      # Spawn sword on F key press during gameplay
-      #used ai to help me
-      if event.key == pygame.K_f and game_state == "running" and player is not None:
-        sword = Sword(player.rect.centerx, player.rect.centery, player=player)
-        all_sprites.add(sword)
     if event.type == pygame.QUIT:
       run = False
 
@@ -181,18 +175,28 @@ while run:
     all_sprites.update(dt)
     all_sprites.draw(screen)
   elif game_state == "running":
+    # Spawner - spawn projectiles from middle
+    spawn_timer += dt
+    if spawn_timer >= spawn_rate:
+      for direction in DIRECTIONS_8:
+        projectile = Projectile(None, spawn_x, spawn_y, direction)
+        all_sprites.add(projectile)
+      spawn_timer = 0
+    
     # update & draw each frame while running
     all_sprites.update(dt)
     all_sprites.draw(screen)
     
-    # Check for projectile-player collisions 
-    #made with help of ai
+    # Check for projectile-player collisions
     if player is not None:
       for projectile in all_sprites:
-        if isinstance(projectile, Sword):
+        if isinstance(projectile, Projectile):
           if projectile.rect.colliderect(player.rect):
             player.health -= projectile.damage
             projectile.kill()  # Remove projectile after hit
+            print(f"Player hit! Health: {player.health}")
+          if player.health <= 0:
+            run = False
 
   pygame.display.update()
 

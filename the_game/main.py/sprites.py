@@ -1,11 +1,12 @@
 import pygame as pg
 from pygame.sprite import Sprite
+import math
 #from utils import *
 WIDTH = 800
 HEIGHT = 600
 
 class Berserker(Sprite):
-    def __init__(self, x, y, damage=20, health=100):
+    def __init__(self, x, y, damage=20, health=150):
         Sprite.__init__(self)
         self.image = pg.Surface((32, 32))
         self.image.fill((0, 0, 255))
@@ -57,7 +58,7 @@ class Mage(Sprite):
     def update(self, dt):
         self.get_keys(dt)
 class Thief(Sprite):
-    def __init__(self, x, y, damage=10, health=100):
+    def __init__(self, x, y, damage=10, health=90):
         Sprite.__init__(self)
         self.image = pg.Surface((32, 32))
         self.image.fill((0, 0, 255))
@@ -82,28 +83,7 @@ class Thief(Sprite):
 
     def update(self, dt):
         self.get_keys(dt)
-class Sword(Sprite):
-    def __init__(self, x, y, player=None, lifetime=0.5):
-        Sprite.__init__(self)
-        self.image = pg.Surface((16, 32))
-        self.image.fill((200, 100, 0))  # brown/bronze color for sword
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)  # spawn at player position
-        self.lifetime = lifetime  # how long the sword stays (seconds)
-        self.age = 0  # tracks elapsed time
-        self.player = player  # reference to the player sprite
-        self.offset_x = 20  # offset from player center
-        self.offset_y = 0   # offset from player center
-    
-    def update(self, dt):
-        self.age += dt
-        # Follow the player if reference exists
-        if self.player is not None:
-            self.rect.centerx = self.player.rect.centerx + self.offset_x
-            self.rect.centery = self.player.rect.centery + self.offset_y
-        # Remove sword after lifetime expires
-        if self.age >= self.lifetime:
-            self.kill()  # removes sprite from all groups
+
 class Mob(Sprite):
     def __init__(self, game, x, y):
         #creates Sprite upon init
@@ -123,16 +103,48 @@ class Mob(Sprite):
         if self.rect.x > WIDTH:
             self.kill()
 class Projectile(Sprite):
-    def __init__(self, game, x, y, damage=10):
-         #creates Sprite upon init
+    def __init__(self, game, x, y, direction_vec, damage=10):
         Sprite.__init__(self)
         self.game = game
-        #colors sprite and positions sprite
-        self.image = pg.Surface((32, 32))
+        self.image = pg.Surface((8, 8))
         self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.center = (x, y)
         self.speed = 250
         self.damage = damage
-        self.speed = 250
+        
+        # Normalize direction vector
+        #this one line made by ai to help calculate length of vec
+        length = math.sqrt(direction_vec[0]**2 + direction_vec[1]**2)
+        #makes the projectile move smoothly
+        if length > 0:
+            self.vx = (direction_vec[0] / length) * self.speed
+            self.vy = (direction_vec[1] / length) * self.speed
+            #if no direction then speed is 0
+        else:
+            self.vx = 0
+            self.vy = 0
+    #moves the projectile by multiplying velocity by dt
+    def update(self, dt):
+        self.rect.x += self.vx * dt
+        self.rect.y += self.vy * dt
+        
+        # remove if off-screen
+        if self.rect.right < 0 or self.rect.left > WIDTH or \
+           self.rect.bottom < 0 or self.rect.top > HEIGHT:
+            self.kill()
+
+# 8 directions pattern
+DIRECTIONS_8 = [
+    (1, 0),      # right
+    (1, -1),     # up-right
+    (0, -1),     # up
+    (-1, -1),    # up-left
+    (-1, 0),     # left
+    (-1, 1),     # down-left
+    (0, 1),      # down
+    (1, 1)       # down-right
+]
+
+
+
