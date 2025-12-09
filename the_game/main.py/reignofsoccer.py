@@ -54,6 +54,7 @@ class1_img = pygame.image.load(os.path.join(IMG_FOLDER, 'class1.png')).convert_a
 class2_img = pygame.image.load(os.path.join(IMG_FOLDER, 'class2.png')).convert_alpha()
 class3_img = pygame.image.load(os.path.join(IMG_FOLDER, 'class3.png')).convert_alpha()
 offense_img = pygame.image.load(os.path.join(IMG_FOLDER, 'offense.png')).convert_alpha()
+boss1_img = pygame.image.load(os.path.join(IMG_FOLDER, 'boss1.png')).convert_alpha()
 #create button instances from the button.py module
 resume_button = button.Button(304, 125, resume_img, 1)
 options_button = button.Button(297, 250, options_img, 1)
@@ -66,6 +67,8 @@ class1_button = button.Button(100, 300, class1_img, 1)
 class2_button = button.Button(390, 300, class2_img, 1)
 class3_button = button.Button(620, 250, class3_img, 1)
 offense_button = button.Button(130, 400, offense_img, 1)
+#images
+boss1_pos = (340, 120)
 #allows us to draw text
 def draw_text(text, font, text_col, x, y):
   img = font.render(text, True, text_col)
@@ -117,15 +120,15 @@ while run:
     # Only draw class buttons in idle state
     if class1_button.draw(screen):
       print("berserker")
-      player = Berserker(100, 100)
+      player = Berserker(360, 250)
       game_state = "level_select"
     if class2_button.draw(screen):
       print("mage")
-      player = Mage(100, 100)
+      player = Mage(360, 250)
       game_state = "level_select"
     if class3_button.draw(screen):
       print("thief")
-      player = Thief(100, 100)
+      player = Thief(360, 250)
       game_state = "level_select"
 #if game is level select then draw levels from levels.py
   if game_state == "level_select":
@@ -133,9 +136,9 @@ while run:
     for level_node in LEVEL_MAP:
         level_node.draw(screen)
         draw_text("LEVELS", font, TEXT_COL, 320, 50)
+  if game_state == "move_select":
+    screen.blit(boss1_img, boss1_pos)
     
-     
-  
 
 
   #event handler fo us to quit instance
@@ -173,7 +176,7 @@ while run:
       print("offense")
       if player is not None and player not in all_sprites:
         all_sprites.add(player)
-        all_sprites.add(Mob)
+        #all_sprites.add(Mob)
     # update & draw each frame while running
     all_sprites.update(dt)
     all_sprites.draw(screen)
@@ -181,6 +184,15 @@ while run:
     # update & draw each frame while running
     all_sprites.update(dt)
     all_sprites.draw(screen)
+    
+    # Check for projectile-player collisions 
+    #made with help of ai
+    if player is not None:
+      for projectile in all_sprites:
+        if isinstance(projectile, Sword):
+          if projectile.rect.colliderect(player.rect):
+            player.health -= projectile.damage
+            projectile.kill()  # Remove projectile after hit
 
   pygame.display.update()
 

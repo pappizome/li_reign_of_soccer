@@ -5,14 +5,17 @@ WIDTH = 800
 HEIGHT = 600
 
 class Berserker(Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, damage=20, health=100):
         Sprite.__init__(self)
         self.image = pg.Surface((32, 32))
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 200   # pixels per second
+        self.speed = 150   # pixels per second
+        self.damage = damage
+        self.health = health
+
 
     def get_keys(self, dt):
         keys = pg.key.get_pressed()
@@ -29,7 +32,7 @@ class Berserker(Sprite):
         self.get_keys(dt)
 
 class Mage(Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, damage= 15, health=100):
         Sprite.__init__(self)
         self.image = pg.Surface((32, 32))
         self.image.fill((0, 0, 255))
@@ -37,6 +40,8 @@ class Mage(Sprite):
         self.rect.x = x
         self.rect.y = y
         self.speed = 200   # pixels per second
+        self.damage = damage
+        self.health = health
 
     def get_keys(self, dt):
         keys = pg.key.get_pressed()
@@ -52,14 +57,17 @@ class Mage(Sprite):
     def update(self, dt):
         self.get_keys(dt)
 class Thief(Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, damage=10, health=100):
         Sprite.__init__(self)
         self.image = pg.Surface((32, 32))
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 200   # pixels per second
+        self.speed = 350   # pixels per second
+        self.damage = damage
+        self.health = health
+
 
     def get_keys(self, dt):
         keys = pg.key.get_pressed()
@@ -113,4 +121,18 @@ class Mob(Sprite):
         if self.rect.x < WIDTH:
             self.rect.x -= self.speed
         if self.rect.x > WIDTH:
-            self.rect.x += self.speed
+            self.kill()
+class Projectile(Sprite):
+    def __init__(self, game, x, y, damage=10):
+         #creates Sprite upon init
+        Sprite.__init__(self)
+        self.game = game
+        #colors sprite and positions sprite
+        self.image = pg.Surface((32, 32))
+        self.image.fill((255, 0, 0))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speed = 250
+        self.damage = damage
+        self.speed = 250
