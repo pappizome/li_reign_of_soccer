@@ -23,11 +23,16 @@ SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Main Menu")
 
+# Timer setup
+game_timer = 0
+time_limit = 10  # 10 seconds
+
 #game variables for loop to operate
 game_paused = False
 menu_state = "main"
 game_state = "idle"
 initiation = 'false'
+spawn_timer = 0
 
 #define fonts for us to draw text
 font = pygame.font.SysFont("arialblack", 40)
@@ -175,13 +180,21 @@ while run:
     all_sprites.update(dt)
     all_sprites.draw(screen)
   elif game_state == "running":
-    # Spawner - spawn projectiles from middle
+    # Track time for 10 second limit
+    game_timer += dt
+    
+    # Spawn projectiles from middle
     spawn_timer += dt
     if spawn_timer >= spawn_rate:
       for direction in DIRECTIONS_8:
         projectile = Projectile(None, spawn_x, spawn_y, direction)
         all_sprites.add(projectile)
       spawn_timer = 0
+    
+    # Check if 10 seconds elapsed
+    if game_timer >= time_limit:
+      game_state = "move_select"
+      game_timer = 0  # Reset timer
     
     # update & draw each frame while running
     all_sprites.update(dt)
@@ -195,8 +208,9 @@ while run:
             player.health -= projectile.damage
             projectile.kill()  # Remove projectile after hit
             print(f"Player hit! Health: {player.health}")
-          if player.health <= 0:
-            run = False
+        if player.health <= 0:
+          run = False
+
 
   pygame.display.update()
 
